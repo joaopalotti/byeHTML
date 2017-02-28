@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import sys
+import io
 import gzip
 import chardet
 # HTML Processing tools:
@@ -8,6 +9,9 @@ import justext
 from bs4 import BeautifulSoup
 # Local functions
 from timeout import timeout
+
+#import codecs
+#sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 '''
 Author: Joao Palotti <joaopalotti@gmail.com>
@@ -53,19 +57,19 @@ class byeHTML:
         if doc_full_path.endswith(".gz"):
             f = gzip.open(doc_full_path, mode="rb")
         else:
-            f = open(doc_full_path, mode="rb")
+            f = io.open(doc_full_path, mode="rb")
 
         rawdata = f.read()
         return chardet.detect(rawdata)["encoding"]
 
-    def __get_content(self, filename):
+    def __extract_content(self, filename):
         encoding = self.__find_encoding(filename)
 
         if filename.endswith(".gz"):
-            with gzip.open(filename, mode="rt", encoding=encoding, errors="surrogateescape") as f:
-                content = str(f.read()) # Explicitly convert from bytes to str
+            with gzip.open(filename, mode="rb") as f:
+                content = str(f.read().decode(encoding, errors="ignore"))
         else:
-            with open(filename, encoding=encoding, errors="surrogateescape", mode="r") as f:
+            with io.open(filename, encoding=encoding, errors="surrogateescape", mode="r") as f:
                 content = f.read()
         return content
 
