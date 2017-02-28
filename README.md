@@ -2,6 +2,11 @@
 Bye HTML
 ======================
 
+Instalation
+------------
+
+>> python setup.py install
+
 Usage
 -----
 
