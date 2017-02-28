@@ -6,6 +6,8 @@ import chardet
 # HTML Processing tools:
 import justext
 from bs4 import BeautifulSoup
+# Local functions
+from timeout import timeout
 
 '''
 Author: Joao Palotti <joaopalotti@gmail.com>
@@ -13,7 +15,7 @@ Author: Joao Palotti <joaopalotti@gmail.com>
 
 class byeHTML:
 
-    def __init__(self, htmlText, isInputFile=False, preprocesshtml="bs4", forcePeriod=False):
+    def __init__(self, htmlText, isInputFile=False, preprocesshtml="bs4", forcePeriod=False, timeoutsec=5):
         """
             byeHTML(htmlText, isInputFile=False, preprocesshtml = "justext", forcePeriod = False).
 
@@ -32,7 +34,8 @@ class byeHTML:
             if isInputFile:
                 htmlText = self.__extract_content(htmlText)
 
-            self.text = self.preprocess_html(htmlText, preprocesshtml, forcePeriod)
+            with timeout(seconds=timeoutsec):
+                self.text = self.preprocess_html(htmlText, preprocesshtml, forcePeriod)
 
         except Exception as e:
             print(("Error %s -- %s" % (type(e), e)))
