@@ -7,6 +7,7 @@ import chardet
 # HTML Processing tools:
 import justext
 from bs4 import BeautifulSoup
+from boilerpipe.extract import Extractor
 # Local functions
 from timeout import timeout
 
@@ -66,10 +67,10 @@ class byeHTML:
         encoding = self.__find_encoding(filename)
 
         if filename.endswith(".gz"):
-            with gzip.open(filename, mode="rb") as f:
-                content = str(f.read().decode(encoding, errors="ignore"))
+            with gzip.open(filename, mode="r") as f:
+                content = f.read()
         else:
-            with io.open(filename, encoding=encoding, errors="surrogateescape", mode="r") as f:
+            with open(filename, mode="r", encoding=encoding) as f:
                 content = f.read()
         return content
 
@@ -78,9 +79,8 @@ class byeHTML:
         """
             Options:
             preprocessor: justext, bs4, None
-            continuous: True, False.
+            forcePeriod: True, False. True will force a period whenever a linebreak is found.
 
-            Use continuous to set if you want to force end of sentences.
         """
 
         if not preprocessor or type(text) != str or len(text.strip()) == 0:
@@ -101,7 +101,7 @@ class byeHTML:
             else:
                 return soup.body.get_text()
 
-        elif preprocessor == "justext":
+        elif preprocessor == "justext" or preprocessor == "jst":
             paragraphs = justext.justext(text, justext.get_stoplist('English'))
             text = "\n"
             for paragraph in paragraphs:
@@ -112,13 +112,19 @@ class byeHTML:
                         text = text + paragraph.text + "\n"
             return text
 
-        # At the moment that this code was updated, boilerpipe was not available for download via pip.
-        #elif preprocessor == "boilerpipe":
-        #    extractor = Extractor(extractor='ArticleExtractor', html=content)
-        #    return extractor.getText()
+        # Boilerpipe install is not always working. If you cannot install it, just comment the following code
+        # and remove the import
+        elif preprocessor == "boilerpipe" or preprocessor == "boi":
+            text = Extractor(extractor='ArticleExtractor', html=text).getText()
+            #print("Text before: %s" % text)
+            if forcePeriod:
+                #print("Text after: %s" % text.replace("\n", ".\n"))
+                return text.replace("\n", ".\n")
+            else:
+                return text
 
         else:
-            print("PRE PROCESSING OPTION %s NOT FOUND. IGNORING PRE PROCESSING.")
+            print("PRE PROCESSING OPTION %s NOT FOUND. IGNORING PRE PROCESSING." % preprocessor)
             return text
 
 
