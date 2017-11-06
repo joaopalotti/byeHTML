@@ -12,7 +12,7 @@ requirements = [
 ]
 
 setup(name='byeHTML',
-        version='0.0.1',
+        version='0.0.2',
         author='Joao Palotti',
         author_email='joaopalotti@gmail.com',
         license='LICENSE.txt',
